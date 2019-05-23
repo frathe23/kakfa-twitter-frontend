@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <sse-timeline/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import SseTimeline from './components/SSETimeline'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    SseTimeline
   }
 }
 </script>
