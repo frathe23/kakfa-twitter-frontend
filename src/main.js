@@ -13,7 +13,7 @@ Vue.use(VueSSE);
 Vue.use(VueAxios, axios);
 Vue.use(BootstrapVue);
 Vue.use(Toasted, {
-  duration: 2000
+  duration: 3000
 });
 
 new Vue({
