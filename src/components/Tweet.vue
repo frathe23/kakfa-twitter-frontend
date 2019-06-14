@@ -1,12 +1,12 @@
 <template>
     <div>
-        <b-card
-                :header=tweet.authors
-                header-tag="header"
-                :footer=tweet.timestamp
-                footer-tag="footer"
-        >
-            <b-card-text>{{ tweet.content }}</b-card-text>
+        <b-card>
+            <h3 slot="header" class="header">@{{ tweet.authors }}</h3>
+            <div class="row footer" slot="footer">
+                <div style="margin-right: 100px;">{{tweet.location }}</div>
+                <div>{{ tweet.timestamp }}</div>
+            </div>
+            <b-card-body class="body">{{ tweet.content }}</b-card-body>
         </b-card>
     </div>
 </template>
@@ -22,3 +22,21 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+    .header {
+        text-align: left;
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .subtitle {
+        text-align: left;
+    }
+    .footer {
+        margin-left: 16px;
+        font-size: small;
+    }
+    .body {
+        font-size: x-large
+    }
+</style>
