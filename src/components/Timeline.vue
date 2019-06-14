@@ -1,33 +1,39 @@
 <template>
     <div>
-        <div class="col-sm-12">
-            <div class="row col-sm-12">
-                <div class="padded">
-                    <button type="button" class="btn btn-secondary" v-on:click="empty">Empty Timeline</button>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="col-sm-12">
+                    <div class="padded col-sm-12">
+                        <button type="button" class="btn btn-secondary" v-on:click="empty">
+                            Empty Timeline <font-awesome-icon icon="ban"/></button>
+                    </div>
+                    <div class="padded col-sm-12">
+                        <button v-if="!isContinuous" type="button" class="btn btn-info" v-on:click="continuousMode">
+                            Continuous Mode</button>
+                        <button v-else type="button" class="btn btn-light">
+                            Continuous Mode <font-awesome-icon icon="sync-alt"/></button>
+                    </div>
+                    <div class="padded col-sm-12">
+                        <button v-if="isContinuous || isContinuous==null" type="button" class="btn btn-info" v-on:click="batchMode">Batch Mode</button>
+                        <button v-else type="button" class="btn btn-light" v-on:click="batchRefresh">
+                            Refresh <font-awesome-icon icon="redo-alt"/></button>
+                    </div>
                 </div>
-                <div class="padded">
-                    <button v-if="!isContinuous" type="button" class="btn btn-info" v-on:click="continuousMode">Continuous Mode</button>
-                    <button v-else type="button" class="btn btn-light">Continuous Mode</button>
-                </div>
-                <div class="padded">
-                    <button v-if="isContinuous || isContinuous==null" type="button" class="btn btn-info" v-on:click="batchMode">Batch Mode</button>
-                    <button v-else type="button" class="btn btn-light" v-on:click="batchRefresh">Refresh</button>
+                <div class="col-sm-12">
+                    <div>
+                        <label class="col-lg-12">
+                            <input v-model="filterHashtag" placeholder="hashtag" style="width: 50%;" />
+                        </label>
+                        <label class="col-lg-12">
+                            <input v-model="filterMentions" placeholder="mentions" style="width: 50%;" />
+                        </label>
+                        <label class="col-lg-12">
+                            <input v-model="filterLocation" placeholder="location" style="width: 50%;" />
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div class="row col-sm-12 text-lg-left">
-                <div style="margin-bottom: 32px">
-                    <label class="col-lg-12">
-                        <input v-model="filterHashtag" placeholder="hashtag" style="width: 50%;" />
-                    </label>
-                    <label class="col-lg-12">
-                        <input v-model="filterMentions" placeholder="mentions" style="width: 50%;" />
-                    </label>
-                    <label class="col-lg-12">
-                        <input v-model="filterLocation" placeholder="location" style="width: 50%;" />
-                    </label>
-                </div>
-            </div>
-            <div class="list">
+            <div class="list col-lg-8">
                 <transition-group v-if="isContinuous" name="list-item" tag="ul" class="list__ul">
                     <li v-for="message in messages" :key="message" class="list__item">
                         <tweet class="tweet" v-bind:tweet="JSON.parse(message)"/>
@@ -115,8 +121,12 @@
 </script>
 
 <style scoped>
+    button {
+        width: 75%;
+    }
     .padded {
         padding: 16px;
+        width: 100%;
     }
     .tweet {
         margin-bottom: 16px;
