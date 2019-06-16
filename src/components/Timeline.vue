@@ -58,89 +58,90 @@
 <script>
     import Tweet from './Tweet.vue'
 
-    export default {
-    name: 'sse-timeline',
-    components: { Tweet },
-    data() {
-        return {
-            messages: [],
-            isContinuous: null,
-            msgServer: null,
-            filterHashtag: '',
-            filterMentions: '',
-            filterLocation: '',
-            batchResults: null,
-            testString: '{"authors":"paolorossi","content":"eheh","location":"Milano","timestamp":"2019-06-14 00:11:16.202244","id":"ec907817-7cda-4ac1-bb70-d768096a8c79"}'
-        };
+    const SERVER_IP = '192.168.178.50';
+
+export default {
+name: 'sse-timeline',
+components: { Tweet },
+data() {
+    return {
+        messages: [],
+        isContinuous: null,
+        msgServer: null,
+        filterHashtag: '',
+        filterMentions: '',
+        filterLocation: '',
+        batchResults: null,
+        testString: '{"authors":"paolorossi","content":"eheh","location":"Milano","timestamp":"2019-06-14 00:11:16.202244","id":"ec907817-7cda-4ac1-bb70-d768096a8c79"}'
+    };
+},
+methods: {
+    sendTweet: function () {
+        this.$http.post('http://'+SERVER_IP+':5000/tweets', {
+            "authors": "larghifra",
+            "content": this.tweet,
+            "location": "Varese"
+        }).then(response => {
+            this.$toasted.success('Sent post request: ' + response.status)
+        }, response => {
+            this.$toasted.error('error post request: ' + response.status)
+        })
     },
-    methods: {
-        sendTweet: function () {
-            this.$http.post("http://192.168.233.143:5000/tweets", {
-                "authors": "larghifra",
-                "content": this.tweet,
-                "location": "Varese"
-            }).then(response => {
-                this.$toasted.success('Sent post request: ' + response.status)
-            }, response => {
-                this.$toasted.error('error post request: ' + response.status)
-            })
-        },
-        empty: function () {
-            this.messages = [];
-            this.batchResults = [];
-        },
-        batchMode: function () {
-            if (this.msgServer){
-                this.msgServer.close();
-            }
-            this.isContinuous = false;
-            this.empty();
-            this.batchRefresh();
-        },
-        batchRefresh: function () {
-            this.$http.get('http://192.168.233.143:5000/tweets/%7B%22tags%22:%22'+this.filterHashtag+'%22,%22mentions%22:%22'+
-                this.filterMentions+'%22,%22location%22:%22'+this.filterLocation+'%22%7D/latest'
-            ).then(response => {
-                /* eslint-disable */
-                console.log(response.data.toString());
-                this.$toasted.success('Received get response: ' + response.status);
-                this.batchResults = response.data.reverse();
-            }, response => {
-                this.$toasted.error('Error get request: ' + response.status)
-            })
-        },
-        continuousMode: function () {
-            this.isContinuous = true;
-            this.empty();
-            this.loadSse();
-        },
-        loadSse: function () {
-            this.$sse('http://192.168.233.143:5500/stream', { format: 'plain', withCredentials: false }) // or { format: 'plain' }
-                .then(sse => {
-                    this.msgServer = sse;
-                    this.msgServer.onError(err => {
-                        this.$toasted.error('sse connection error: '+ err);
-                        sse.close();
-                    });
-                    this.msgServer.subscribe('', data => {
-                        this.messages.unshift(data);
-                        this.$toasted.success('Sse message received!');
-                        // eslint-disable-next-line
-                        console.log(this.messages.toString());
-                    });
-                }).catch(err => {
-                    this.$toasted.error('sse loading error: '+ err)
-                });
-        }
-    },
-    mounted() {
-    },
-    beforeDestroy() {
+    empty: function () {
         if (this.msgServer){
             this.msgServer.close();
         }
+        this.isContinuous = null;
+        this.messages = [];
+        this.batchResults = [];
+    },
+    batchMode: function () {
+        this.empty();
+        this.isContinuous = false;
+        this.batchRefresh();
+    },
+    batchRefresh: function () {
+        this.$http.get('http://'+SERVER_IP+':5000/tweets/%7B%22tags%22:%22'+this.filterHashtag+'%22,%22mentions%22:%22'+
+            this.filterMentions+'%22,%22location%22:%22'+this.filterLocation+'%22%7D/latest'
+        ).then(response => {
+            /* eslint-disable */
+            console.log(response.data.toString());
+            this.$toasted.success('Received get response: ' + response.status);
+            this.batchResults = response.data.reverse();
+        }, response => {
+            this.$toasted.error('Error get request: ' + response.status)
+        })
+    },
+    continuousMode: function () {
+        this.empty();
+        this.isContinuous = true;
+        this.loadSse();
+    },
+    loadSse: function () {
+        this.$sse('http://'+SERVER_IP+':5500/stream', { format: 'plain', withCredentials: false }) // or { format: 'plain' }
+            .then(sse => {
+                this.msgServer = sse;
+                this.msgServer.onError(err => {
+                    this.$toasted.error('sse connection error: '+ err);
+                    sse.close();
+                });
+                this.msgServer.subscribe('', data => {
+                    this.messages.unshift(data);
+                    this.$toasted.success('Sse message received!');
+                    // eslint-disable-next-line
+                    console.log(this.messages.toString());
+                });
+            }).catch(err => {
+                this.$toasted.error('sse loading error: '+ err)
+            });
     }
-    };
+},
+mounted() {
+},
+beforeDestroy() {
+    this.empty();
+}
+};
 </script>
 
 <style scoped>
