@@ -8,10 +8,10 @@ import BootstrapVue from "bootstrap-vue"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-vue/dist/bootstrap-vue.css"
 import {library} from '@fortawesome/fontawesome-svg-core'
-import {faBan, faPaperPlane, faRedoAlt, faSyncAlt} from '@fortawesome/free-solid-svg-icons'
+import {faBan, faClock, faMapMarkerAlt, faPaperPlane, faRedoAlt, faSyncAlt} from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 
-library.add(faPaperPlane, faRedoAlt, faSyncAlt, faBan );
+library.add(faPaperPlane, faRedoAlt, faSyncAlt, faBan, faMapMarkerAlt, faClock );
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.config.productionTip = false;

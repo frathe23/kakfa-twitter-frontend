@@ -1,20 +1,14 @@
 <template>
   <div id="app">
-    <div class="p-lg-5" >
-      <h1 class="text-center">Twitter-Kafka</h1>
-      <br>
-      <div>
-        <div class="col-lg-4 padded">
-          <div class="col-12" style="margin-bottom: 16px">
-            <button type="button" class="btn btn-primary" style="width: 100%; background-color: #00acee" v-on:click="sendTweet" >New Tweet <font-awesome-icon icon="paper-plane"/> </button>
-          </div>
-          <label class="col-lg-12">
-            <b-form-textarea no-resize rows="4" class="textarea" v-model="tweet" placeholder="Write your tweet here"></b-form-textarea>
-          </label>
+    <div class="p-lg-5">
+      <div class="title row">
+        <div>
+          <img width="100px" src="./assets/twitter-kafka-logo.png" alt="Responsive image"/>
         </div>
-        <div class="tweets col-lg-12">
-          <sse-timeline/>
-        </div>
+        <h1 class="text-lg-center">twitter-kafka</h1>
+      </div>
+      <div class="tweets col-lg-12">
+        <sse-timeline/>
       </div>
     </div>
   </div>
@@ -35,17 +29,7 @@
     }
   },
   methods: {
-    sendTweet: function () {
-      this.$http.post("http://192.168.233.143:5000/tweets", {
-        "authors": "larghifra",
-        "content": this.tweet,
-        "location": "Varese"
-      }).then(response => {
-        this.$toasted.success('Sent post request: ' + response.status)
-      }, response => {
-        this.$toasted.error('error post request: ' + response.status)
-      })
-    }
+
   }
 }
 </script>
@@ -64,9 +48,6 @@
   color: darkslategrey;
 }
 
-.textarea {
-  width: 75%;
-}
 .padded {
   padding: 16px;
 }

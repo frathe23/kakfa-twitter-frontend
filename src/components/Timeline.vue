@@ -1,36 +1,42 @@
 <template>
     <div>
-        <div class="row">
-            <div class="col-sm-4">
-                <div class="col-sm-12">
-                    <div class="padded col-sm-12">
+        <div class="timeline row">
+            <div class="left-panel col-lg-4">
+                <div class="new-tweet">
+                    <div>
+                        <button type="button" class="btn btn-primary" style="width: 75%; background-color: #00acee" v-on:click="sendTweet" >New Tweet <font-awesome-icon icon="paper-plane"/> </button>
+                    </div>
+                    <label class="col-lg-9">
+                        <b-form-textarea no-resize rows="4" class="textarea" v-model="tweet" placeholder="Write your tweet here"></b-form-textarea>
+                    </label>
+                </div>
+                <div class="modes">
+                    <div>
                         <button type="button" class="btn btn-secondary" v-on:click="empty">
                             Empty Timeline <font-awesome-icon icon="ban"/></button>
                     </div>
-                    <div class="padded col-sm-12">
+                    <div>
                         <button v-if="!isContinuous" type="button" class="btn btn-info" v-on:click="continuousMode">
                             Continuous Mode</button>
                         <button v-else type="button" class="btn btn-light">
                             Continuous Mode <font-awesome-icon icon="sync-alt"/></button>
                     </div>
-                    <div class="padded col-sm-12">
+                    <div>
                         <button v-if="isContinuous || isContinuous==null" type="button" class="btn btn-info" v-on:click="batchMode">Batch Mode</button>
                         <button v-else type="button" class="btn btn-light" v-on:click="batchRefresh">
                             Refresh <font-awesome-icon icon="redo-alt"/></button>
                     </div>
                 </div>
-                <div class="col-sm-12">
-                    <div>
-                        <label class="col-lg-12">
-                            <input v-model="filterHashtag" placeholder="hashtag" style="width: 50%;" />
-                        </label>
-                        <label class="col-lg-12">
-                            <input v-model="filterMentions" placeholder="mentions" style="width: 50%;" />
-                        </label>
-                        <label class="col-lg-12">
-                            <input v-model="filterLocation" placeholder="location" style="width: 50%;" />
-                        </label>
-                    </div>
+                <div class="filters">
+                    <label class="col-lg-12">
+                        <input v-model="filterHashtag" placeholder="hashtag" />
+                    </label>
+                    <label class="col-lg-12">
+                        <input v-model="filterMentions" placeholder="mentions" />
+                    </label>
+                    <label class="col-lg-12">
+                        <input v-model="filterLocation" placeholder="location" />
+                    </label>
                 </div>
             </div>
             <div class="list col-lg-8">
@@ -40,8 +46,8 @@
                     </li>
                 </transition-group>
                 <transition-group v-else name="list-item" tag="ul" class="list__ul">
-                    <li v-for="msgKey in batchResults" :key="msgKey" class="list__item">
-                        <tweet class="tweet" v-bind:tweet="msgKey"/>
+                    <li v-for="message in batchResults" :key="message" class="list__item">
+                        <tweet class="tweet" v-bind:tweet="message"/>
                     </li>
                 </transition-group>
             </div>
@@ -68,8 +74,20 @@
         };
     },
     methods: {
+        sendTweet: function () {
+            this.$http.post("http://192.168.233.143:5000/tweets", {
+                "authors": "larghifra",
+                "content": this.tweet,
+                "location": "Varese"
+            }).then(response => {
+                this.$toasted.success('Sent post request: ' + response.status)
+            }, response => {
+                this.$toasted.error('error post request: ' + response.status)
+            })
+        },
         empty: function () {
-            this.messages = []
+            this.messages = [];
+            this.batchResults = [];
         },
         batchMode: function () {
             if (this.msgServer){
@@ -116,18 +134,33 @@
         }
     },
     mounted() {
+    },
+    beforeDestroy() {
+        if (this.msgServer){
+            this.msgServer.close();
+        }
     }
-};
+    };
 </script>
 
 <style scoped>
     button {
         width: 75%;
+        margin-bottom: 16px;
     }
-    .padded {
-        padding: 16px;
-        width: 100%;
+
+    input {
+        width: 75%;
     }
+
+    .new-tweet {
+        margin-bottom: 16px;
+    }
+
+    .modes {
+        margin-bottom: 16px;
+    }
+
     .tweet {
         margin-bottom: 16px;
     }
@@ -154,7 +187,7 @@
         background: #FFF;
         margin: auto;
         padding: 1em 1em 1em;
-        box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+        /*box-shadow: 0 5px 30px rgba(0,0,0,0.2);*/
     }
 
     .list__ul {
