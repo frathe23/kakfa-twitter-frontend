@@ -8,19 +8,19 @@
         <h1 class="text-lg-center">twitter-kafka</h1>
       </div>
       <div class="tweets col-lg-12">
-        <sse-timeline/>
+        <timeline/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import SseTimeline from './components/Timeline'
+    import Timeline from './components/Timeline'
 
-  export default {
+    export default {
   name: 'app',
   components: {
-    SseTimeline
+    Timeline
   },
   data() {
     return {

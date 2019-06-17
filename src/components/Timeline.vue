@@ -39,7 +39,7 @@
                     </label>
                 </div>
             </div>
-            <div class="list col-lg-8">
+            <div class="list col-lg-8 border" style="min-height: 640px">
                 <transition-group v-if="isContinuous" name="list-item" tag="ul" class="list__ul">
                     <li v-for="message in messages" :key="message" class="list__item">
                         <tweet class="tweet" v-bind:tweet="JSON.parse(message)"/>
