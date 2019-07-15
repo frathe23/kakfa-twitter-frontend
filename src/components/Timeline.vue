@@ -58,89 +58,104 @@
 <script>
     import Tweet from './Tweet.vue'
 
-    const SERVER_IP = '192.168.178.50';
+    const SERVER_IP = '192.168.233.146';
 
 export default {
-name: 'sse-timeline',
-components: { Tweet },
-data() {
-    return {
-        messages: [],
-        isContinuous: null,
-        msgServer: null,
-        filterHashtag: '',
-        filterMentions: '',
-        filterLocation: '',
-        batchResults: null,
-        testString: '{"authors":"paolorossi","content":"eheh","location":"Milano","timestamp":"2019-06-14 00:11:16.202244","id":"ec907817-7cda-4ac1-bb70-d768096a8c79"}'
-    };
-},
-methods: {
-    sendTweet: function () {
-        this.$http.post('http://'+SERVER_IP+':5000/tweets', {
-            "authors": "larghifra",
-            "content": this.tweet,
-            "location": "Varese"
-        }).then(response => {
-            this.$toasted.success('Sent post request: ' + response.status)
-        }, response => {
-            this.$toasted.error('error post request: ' + response.status)
-        })
-    },
-    empty: function () {
-        if (this.msgServer){
-            this.msgServer.close();
+    name: 'timeline',
+    components: { Tweet },
+    props: {
+        author: {
+            type: String,
+            required: true
+        },
+        location: {
+            type: String,
+            required: true
         }
-        this.isContinuous = null;
-        this.messages = [];
-        this.batchResults = [];
     },
-    batchMode: function () {
-        this.empty();
-        this.isContinuous = false;
-        this.batchRefresh();
+    data() {
+        return {
+            tweet: null,
+            messages: [],
+            isContinuous: null,
+            msgServer: null,
+            filterHashtag: '',
+            filterMentions: '',
+            filterLocation: '',
+            batchResults: null,
+            testString: '{"authors":"paolorossi","content":"eheh","location":"Milano","timestamp":"2019-06-14 00:11:16.202244","id":"ec907817-7cda-4ac1-bb70-d768096a8c79"}'
+        };
     },
-    batchRefresh: function () {
-        this.$http.get('http://'+SERVER_IP+':5000/tweets/%7B%22tags%22:%22'+this.filterHashtag+'%22,%22mentions%22:%22'+
-            this.filterMentions+'%22,%22location%22:%22'+this.filterLocation+'%22%7D/latest'
-        ).then(response => {
-            /* eslint-disable */
-            console.log(response.data.toString());
-            this.$toasted.success('Received get response: ' + response.status);
-            this.batchResults = response.data.reverse();
-        }, response => {
-            this.$toasted.error('Error get request: ' + response.status)
-        })
-    },
-    continuousMode: function () {
-        this.empty();
-        this.isContinuous = true;
-        this.loadSse();
-    },
-    loadSse: function () {
-        this.$sse('http://'+SERVER_IP+':5500/stream', { format: 'plain', withCredentials: false }) // or { format: 'plain' }
-            .then(sse => {
-                this.msgServer = sse;
-                this.msgServer.onError(err => {
-                    this.$toasted.error('sse connection error: '+ err);
-                    sse.close();
+    methods: {
+        sendTweet: function () {
+            this.$http.post('http://'+SERVER_IP+':5000/tweets', {
+                "authors": this.author,
+                "content": this.tweet,
+                "location": this.location
+            }).then(response => {
+                this.$toasted.success('sent tweet: ' + response.status)
+            }, response => {
+                this.$toasted.error('error post request: ' + response.status)
+            })
+        },
+        empty: function () {
+            if (this.msgServer){
+                this.msgServer.close();
+                this.$toasted.success('sse connection correctly shut down')
+            }
+            this.isContinuous = null;
+            this.messages = [];
+            this.batchResults = [];
+        },
+        batchMode: function () {
+            this.empty();
+            this.isContinuous = false;
+            this.batchRefresh();
+        },
+        batchRefresh: function () {
+            this.$toasted.success('sending get request');
+            this.$http.get('http://'+SERVER_IP+':5000/tweets/{"tags":"'+this.filterHashtag+'","mentions":"'+
+                this.filterMentions+'","location":"'+this.filterLocation+'"}/latest'
+            ).then(response => {
+                /* eslint-disable */
+                console.log(response.data.toString());
+                this.$toasted.success('Received get response: ' + response.status);
+                this.batchResults = response.data.reverse();
+            }, response => {
+                this.$toasted.error('Error get request: ' + response.status)
+            })
+        },
+        continuousMode: function () {
+            this.empty();
+            this.isContinuous = true;
+            this.loadSse();
+        },
+        loadSse: function () {
+            this.$sse('http://'+SERVER_IP+':5500/stream',
+                { format: 'plain', withCredentials: false })
+                .then(sse => {
+                    this.msgServer = sse;
+                    this.$toasted.success('sse connection correctly set up');
+                    this.msgServer.onError(err => {
+                        this.$toasted.error('sse connection error: '+ err);
+                        sse.close();
+                    });
+                    this.msgServer.subscribe('', data => {
+                        this.messages.unshift(data);
+                        this.$toasted.success('sse message received!');
+                        // eslint-disable-next-line
+                        console.log(this.messages.toString());
+                    });
+                }).catch(err => {
+                    this.$toasted.error('sse loading error: '+ err)
                 });
-                this.msgServer.subscribe('', data => {
-                    this.messages.unshift(data);
-                    this.$toasted.success('Sse message received!');
-                    // eslint-disable-next-line
-                    console.log(this.messages.toString());
-                });
-            }).catch(err => {
-                this.$toasted.error('sse loading error: '+ err)
-            });
+        }
+    },
+    mounted() {
+    },
+    beforeDestroy() {
+        this.empty();
     }
-},
-mounted() {
-},
-beforeDestroy() {
-    this.empty();
-}
 };
 </script>
 
