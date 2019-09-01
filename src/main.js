@@ -10,6 +10,9 @@ import "bootstrap-vue/dist/bootstrap-vue.css"
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {faBan, faClock, faMapMarkerAlt, faPaperPlane, faRedoAlt, faSyncAlt} from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+import vSelect from 'vue-select'
+
+Vue.component('v-select', vSelect);
 
 library.add(faPaperPlane, faRedoAlt, faSyncAlt, faBan, faMapMarkerAlt, faClock );
 Vue.component('font-awesome-icon', FontAwesomeIcon);

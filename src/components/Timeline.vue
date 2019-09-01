@@ -27,16 +27,11 @@
                             Refresh <font-awesome-icon icon="redo-alt"/></button>
                     </div>
                 </div>
-                <div class="filters">
-                    <label class="col-lg-12">
-                        <input v-model="filterHashtag" placeholder="hashtag" />
-                    </label>
-                    <label class="col-lg-12">
-                        <input v-model="filterMentions" placeholder="mentions" />
-                    </label>
-                    <label class="col-lg-12">
-                        <input v-model="filterLocation" placeholder="location" />
-                    </label>
+                <div class="row filters">
+                    <div class="col-md-1"></div>
+                    <v-select class="col-md-5 select" :options="['mentions', 'location', 'tags']" v-model="myFilter"></v-select>
+                    <input class="col-md-5" v-model="myValue" placeholder="filter" />
+
                 </div>
             </div>
             <div class="list col-lg-8 border" style="min-height: 640px">
@@ -57,12 +52,14 @@
 
 <script>
     import Tweet from './Tweet.vue'
+    import 'vue-select/dist/vue-select.css';
+    import vSelect from 'vue-select'
 
-    const SERVER_IP = '192.168.233.146';
+    const SERVER_IP = '192.168.233.149';
 
 export default {
     name: 'timeline',
-    components: { Tweet },
+    components: { Tweet, vSelect },
     props: {
         author: {
             type: String,
@@ -79,17 +76,15 @@ export default {
             messages: [],
             isContinuous: null,
             msgServer: null,
-            filterHashtag: '',
-            filterMentions: '',
-            filterLocation: '',
+            myFilter: '',
+            myValue: '',
             batchResults: null,
-            testString: '{"authors":"paolorossi","content":"eheh","location":"Milano","timestamp":"2019-06-14 00:11:16.202244","id":"ec907817-7cda-4ac1-bb70-d768096a8c79"}'
         };
     },
     methods: {
         sendTweet: function () {
             this.$http.post('http://'+SERVER_IP+':5000/tweets', {
-                "authors": this.author,
+                "author": this.author,
                 "content": this.tweet,
                 "location": this.location
             }).then(response => {
@@ -114,8 +109,7 @@ export default {
         },
         batchRefresh: function () {
             this.$toasted.success('sending get request');
-            this.$http.get('http://'+SERVER_IP+':5000/tweets/{"tags":"'+this.filterHashtag+'","mentions":"'+
-                this.filterMentions+'","location":"'+this.filterLocation+'"}/latest'
+            this.$http.get('http://'+SERVER_IP+':5000/tweets/{"'+ this.myFilter+ '":"'+ this.myValue.split().toString() +'"}/latest'
             ).then(response => {
                 /* eslint-disable */
                 console.log(response.data.toString());
@@ -163,10 +157,6 @@ export default {
     button {
         width: 75%;
         margin-bottom: 16px;
-    }
-
-    input {
-        width: 75%;
     }
 
     .new-tweet {

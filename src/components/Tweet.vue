@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-card>
-            <h3 slot="header" class="header">@{{ tweet.authors }}</h3>
+            <h3 slot="header" class="header">@{{ tweet.author }}</h3>
             <div class="footer row" slot="footer">
                 <div class="location col-sm-6"><font-awesome-icon icon="map-marker-alt"/> {{ tweet.location }}</div>
                 <div class="timestamp col-sm-6"><font-awesome-icon icon="clock"/> {{ tweet.timestamp.split('.')[0] }}</div>
